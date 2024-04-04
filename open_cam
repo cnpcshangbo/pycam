@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 # Open the default camera (usually index 0)
 cap = cv2.VideoCapture(0)
@@ -6,6 +7,27 @@ cap = cv2.VideoCapture(0)
 while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
+
+    # Convert the frame to the HSV color space
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # Define the lower and upper bounds for green color in HSV
+    lower_green = np.array([40, 50, 50])
+    upper_green = np.array([80, 255, 255])
+
+    # Create a mask for green color
+    mask = cv2.inRange(hsv, lower_green, upper_green)
+
+    # Find contours in the mask
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Iterate through the contours and draw bounding boxes around green blocks
+    for contour in contours:
+        # Get the bounding rectangle of the contour
+        x, y, w, h = cv2.boundingRect(contour)
+
+        # Draw the bounding box on the frame
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # Display the resulting frame
     cv2.imshow('Real-time Camera', frame)
